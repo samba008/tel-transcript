@@ -1,0 +1,24 @@
+<h2>Transcription with Speaker Diarization</h2>
+
+{% if utterances %}
+    <ul>
+    {% for u in utterances %}
+        <li><strong>Speaker {{ u.speaker }}:</strong> {{ u.text }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No transcription available.</p>
+{% endif %}
+
+<p><a href="{{ url }}" target="_blank">Original File</a></p>
+<a href="/">← Upload Another File</a>
+<h2>Transcription with Telugu Translation</h2>
+
+{% for u in utterances %}
+    <div style="margin-bottom: 15px;">
+        <strong>Speaker {{ u.speaker }}:</strong><br>
+        <em>English:</em> {{ u.text }}<br>
+        <em>Telugu:</em> {{ u.telugu }}
+    </div>
+{% endfor %}
+

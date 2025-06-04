@@ -18,14 +18,27 @@ def transcribe_with_diarization(audio_url):
         "language_code": "en"
     }, headers=headers)
 
-    transcript_id = response.json()["id"]
+    response.raise_for_status()  # <- catch bad request errors early
+
+    transcript_id = response.json().get("id")
+    if not transcript_id:
+        raise Exception("No transcript ID received from AssemblyAI")
+
     polling_url = f"{upload_url}/{transcript_id}"
 
     while True:
         poll_response = requests.get(polling_url, headers=headers)
-        status = poll_response.json()["status"]
+        poll_response.raise_for_status()
+
+        result_json = poll_response.json()
+        status = result_json.get("status")
+
         if status == "completed":
-            return poll_response.json()
+            if "utterances" not in result_json:
+                raise Exception("No utterances found in completed transcript")
+            return result_json
+
         elif status == "error":
-            raise Exception(f"Transcription failed: {poll_response.json()['error']}")
+            raise Exception(f"Transcription failed: {result_json.get('error')}")
+
         time.sleep(3)
